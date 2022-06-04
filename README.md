@@ -5,19 +5,28 @@ This repository provides the attack simulations implemented in the course of the
 
 ## Ausführen der Beispielwelt der Arbeit mit dem Iris-Modell und den beschriebenen Sensoren
 
-## Ausführen der Attacken auf die LiDAR Komponente
-1. Spoofing
-   Das Skript zum Spoofen aller Rays der Komponente mit bestimmten Distanzwerten wird von einem Beutzer im Terminal mittels ./lidar_spoofing aufgerufen
+## Ausführen der Ansteuerungslogik
+
+### Ausführen der Obstacle Avoidance Logik
+
+### Ausführen der Waypoint Logik
+
+## Ausführen der Attacken
+
+### Ausführen der Attacken auf die LiDAR Komponente
+#### Spoofing
+   Das Skript zum Spoofen der erfassten Werte der LiDAR Komponente mit bestimmten Distanzwerten wird über das Terminal aufgerufen. Die gewünschten Distanzwerte werden vom User abgefragt. Nach einer gültigen Eingabe erfolgt das Spoofen des Topics. 
    ```
-   $ cd ../lorem
+   $ catkin_ws/src $ ./lidar_spoofing
    $ npm install
    $ npm start
    ``` 
   
-3. Jamming der Rays
-4. gezieltes Spoofen
+#### Jamming der Rays
+   Das Skript zum Jammen der erfassten Werte der LiDAR Komponente mit bestimmten Distanzwerten wird über das Terminal aufgerufen. Der Bereich, in dem die Distanzwerte gejammed werden sollen, werden vom User abgefragt. Nach einer gültigen Eingabe erfolgt das Zuweisen zufälliger Werte für dei Distanzwerte der LiDAR Komponente innerhalb des übermittelten Bereichs. 
+5. gezieltes Spoofen
 
-## Ausführen der Attacken auf die LiDAR Komponente
+### Ausführen der Attacken auf die LiDAR Komponente
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
