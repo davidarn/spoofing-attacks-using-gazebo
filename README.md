@@ -21,7 +21,7 @@ The logic that utilises the detection of obstacles in the environment via LiDAR 
    ``` 
 
 ### Execution of the waypoint logic
-The logic that enables the autonomous control of defined waypoints based on the model's position data. The effect of LiDAR attacks can be evaluated based on this implementation. 
+The logic that enables the autonomous control of defined waypoints based on the model's position data. The effect of LiDAR attacks can be evaluated based on this implementation. When the logic is started, the local frame is initialised and the model takes off. At this point, the attack on the odometry can take place, whereby the manipulated position data is applied in the further execution. In order to give the user time to execute the attack, the user is asked whether they wish to proceed before the waypoints are triggered. 
    ```
    $ catkin_ws/src/iq_gnc/src$ rosrun iq_gnc waypoints
    ``` 
