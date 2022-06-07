@@ -17,6 +17,7 @@
 #include <ros/duration.h>
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 
 /**
@@ -141,6 +142,17 @@ void set_heading(float heading)
   waypoint_g.pose.orientation.y = qy;
   waypoint_g.pose.orientation.z = qz;
 }
+float difference(float x, float y){
+	float difference = 0;
+	if(x < y){
+		difference = y - x;
+	}
+	else if(y < x){
+		difference = y - x;
+	}
+
+	return difference;
+}
 // set position to fly to in the local frame
 /**
 \ingroup control_functions
@@ -156,7 +168,16 @@ void set_destination(float x, float y, float z, float psi)
 	float Ylocal = x*sin((correction_heading_g + local_offset_g - 90)*deg2rad) + y*cos((correction_heading_g + local_offset_g - 90)*deg2rad);
 	float Zlocal = z;
 
-	x = Xlocal + correction_vector_g.position.x + local_offset_pose_g.x;
+	// Adoption of necessary adjustments in the computation of the target waypoint coordinates
+	x = difference(local_offset_pose_g.x, (Xlocal+local_offset_pose_g.x)) + correction_vector_g.position.x; 
+	y = difference(local_offset_pose_g.y, (Ylocal+local_offset_pose_g.y)) + correction_vector_g.position.y; 
+	z = difference(local_offset_pose_g.z, (Zlocal+local_offset_pose_g.z)) + correction_vector_g.position.z; 
+	//x = local_offset_pose_g.x - (Xlocal + correction_vector_g.position.x); 
+  	//y = local_offset_pose_g.y - (Ylocal + correction_vector_g.position.y);
+  	//z = local_offset_pose_g.z - (Zlocal + correction_vector_g.position.z);
+
+  float diff = std::abs(x-y);
+  x = Xlocal + correction_vector_g.position.x + local_offset_pose_g.x;
 	y = Ylocal + correction_vector_g.position.y + local_offset_pose_g.y;
 	z = Zlocal + correction_vector_g.position.z + local_offset_pose_g.z;
 	ROS_INFO("Destination set to x: %f y: %f z: %f origin frame", x, y, z);
