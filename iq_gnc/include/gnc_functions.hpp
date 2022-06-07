@@ -147,8 +147,8 @@ float difference(float x, float y){
 	if(x < y){
 		difference = y - x;
 	}
-	else if(y < x){
-		difference = y - x;
+	else if(x > y){
+		difference = x - y;
 	}
 
 	return difference;
@@ -161,25 +161,23 @@ This function is used to command the drone to fly to a waypoint. These waypoints
 */
 void set_destination(float x, float y, float z, float psi)
 {
+	ROS_INFO("set_destination (x: %f y: %f z: %f", x, y, z);
 	set_heading(psi);
-	//transform map to local
+	// transform map to local
 	float deg2rad = (M_PI/180);
 	float Xlocal = x*cos((correction_heading_g + local_offset_g - 90)*deg2rad) - y*sin((correction_heading_g + local_offset_g - 90)*deg2rad);
 	float Ylocal = x*sin((correction_heading_g + local_offset_g - 90)*deg2rad) + y*cos((correction_heading_g + local_offset_g - 90)*deg2rad);
 	float Zlocal = z;
 
-	// Adoption of necessary adjustments in the computation of the target waypoint coordinates
-	x = difference(local_offset_pose_g.x, (Xlocal+local_offset_pose_g.x)) + correction_vector_g.position.x; 
-	y = difference(local_offset_pose_g.y, (Ylocal+local_offset_pose_g.y)) + correction_vector_g.position.y; 
-	z = difference(local_offset_pose_g.z, (Zlocal+local_offset_pose_g.z)) + correction_vector_g.position.z; 
-	//x = local_offset_pose_g.x - (Xlocal + correction_vector_g.position.x); 
-  	//y = local_offset_pose_g.y - (Ylocal + correction_vector_g.position.y);
-  	//z = local_offset_pose_g.z - (Zlocal + correction_vector_g.position.z);
+	x = local_offset_pose_g.x + difference(Xlocal, (local_offset_pose_g.x + correction_vector_g.position.x)); 
+	y = local_offset_pose_g.y + difference(Ylocal, (local_offset_pose_g.y + correction_vector_g.position.y)); 
+	z = local_offset_pose_g.z + difference(Zlocal, (local_offset_pose_g.z + correction_vector_g.position.z)); 
+	// x = Xlocal + correction_vector_g.position.x + local_offset_pose_g.x;
+	// y = Ylocal + correction_vector_g.position.y + local_offset_pose_g.y;
+	// z = Zlocal + correction_vector_g.position.z + local_offset_pose_g.z;
 
-  float diff = std::abs(x-y);
-  x = Xlocal + correction_vector_g.position.x + local_offset_pose_g.x;
-	y = Ylocal + correction_vector_g.position.y + local_offset_pose_g.y;
-	z = Zlocal + correction_vector_g.position.z + local_offset_pose_g.z;
+	ROS_INFO("local_offset_pose_g.x: %f Xlocal: %f correction_vector_g.position.x: %f ", local_offset_pose_g.x, Xlocal, correction_vector_g.position.x);
+	ROS_INFO("local_offset_pose_g.y: %f Ylocal: %f correction_vector_g.position.y: %f ", local_offset_pose_g.y, Ylocal, correction_vector_g.position.y);
 	ROS_INFO("Destination set to x: %f y: %f z: %f origin frame", x, y, z);
 
 	waypoint_g.pose.position.x = x;
@@ -366,7 +364,7 @@ int check_waypoint_reached(float pos_tolerance=0.3, float heading_tolerance=0.01
 	local_pos_pub.publish(waypoint_g);
 	
 	//check for correct position 
-	float deltaX = abs(waypoint_g.pose.position.x - current_pose_g.pose.pose.position.x);
+	  float deltaX = abs(waypoint_g.pose.position.x - current_pose_g.pose.pose.position.x);
     float deltaY = abs(waypoint_g.pose.position.y - current_pose_g.pose.pose.position.y);
     float deltaZ = 0; //abs(waypoint_g.pose.position.z - current_pose_g.pose.pose.position.z);
     float dMag = sqrt( pow(deltaX, 2) + pow(deltaY, 2) + pow(deltaZ, 2) );
