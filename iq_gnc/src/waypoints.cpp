@@ -1,4 +1,7 @@
 #include <gnc_functions.hpp>
+#include <string>
+#include <iostream>
+#include <unistd.h>
 //include API 
 
 int main(int argc, char** argv)
@@ -22,12 +25,24 @@ int main(int argc, char** argv)
 	// request takeoff
 	takeoff(3);
 
+    std::cout << "\nTakeoff successfully carried out. ";
+
+	// so that a user has time to execute the odometry attack
+	char proceed{}; // default initialize to false
+	std::cout << "\nDo you want to proceed? [y/n] ";
+	std::cin >> proceed;
+	if(!(proceed == 'y' || proceed == 'Y')){
+		return 0;
+	}
+
+    std::cout << "\nWaypoint procedure starts\n";
+
 	// some waypoints 
 	std::vector<gnc_api_waypoint> waypointList;
 	gnc_api_waypoint nextWayPoint;
-	nextWayPoint.x = 0;
+	nextWayPoint.x = 5;
 	nextWayPoint.y = 0;
-	nextWayPoint.z = 3;
+	nextWayPoint.z = 0;
 	nextWayPoint.psi = 0;
 	waypointList.push_back(nextWayPoint);
 
