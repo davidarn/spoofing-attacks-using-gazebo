@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 
     std::cout << "\nTakeoff successfully carried out. ";
 
-	// so that a user has time to execute the odometry attack
+	//to give time to the user to execute the odometry attack
 	char proceed{}; // default initialize to false
 	std::cout << "\nDo you want to proceed? [y/n] ";
 	std::cin >> proceed;
@@ -35,9 +35,6 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-    std::cout << "\nWaypoint procedure starts\n";
-
-	// some waypoints 
 	std::vector<gnc_api_waypoint> waypointList;
 	gnc_api_waypoint nextWayPoint;
 	nextWayPoint.x = 5;
@@ -70,6 +67,7 @@ int main(int argc, char** argv)
 	nextWayPoint.psi = 180;
 	waypointList.push_back(nextWayPoint);
 
+	std::cout << "\nWaypoint procedure starts\n";
 
 	ros::Rate rate(2.0);
 	int counter = 0;
@@ -77,14 +75,16 @@ int main(int argc, char** argv)
 	{
 		ros::spinOnce();
 		rate.sleep();
+		std::cout << "\nCheck if waypoint has been reached\n";
 		if(check_waypoint_reached(.3) == 1)
 		{
 			if (counter < waypointList.size())
 			{
+				std::cout << "\nSet next waypoint\n";
 				set_destination(waypointList[counter].x,waypointList[counter].y,waypointList[counter].z, waypointList[counter].psi);
 				counter++;	
 			}else{
-				//land after all waypoints are reached
+				// land after all waypoints are reached
 				land();
 			}	
 		}	
